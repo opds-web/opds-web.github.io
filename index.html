@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OPDS Client</title>
+<link rel="stylesheet" href="style.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1e1e2e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js');
+  });
+}
+</script>
+<script src="app.js"></script>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="header-top">
+      <div class="url-bar">
+        <input type="url" id="feed-url" placeholder="OPDS catalog URL (e.g. example.com/opds)">
+        <button id="load-btn">Load</button>
+      </div>
+      <select id="proxy-select">
+        <option value="">No proxy</option>
+        <option value="https://api.allorigins.win/raw?url=">allorigins.win</option>
+        <option value="https://corsproxy.nl/?">corsproxy.nl</option>
+        <option value="https://corsproxy.io/?">corsproxy.io</option>
+      </select>
+    </div>
+    <div class="search-bar hidden" id="search-bar">
+      <input type="text" id="search-input" placeholder="Search catalog...">
+      <button id="search-btn">Search</button>
+    </div>
+  </header>
+
+  <nav id="breadcrumb"></nav>
+
+  <div id="loading" class="loading hidden">
+    <div class="spinner"></div>
+  </div>
+
+  <div id="error" class="error hidden"></div>
+
+  <main id="content">
+    <div class="welcome">
+      <p>Enter an OPDS catalog URL above to start browsing.</p>
+      <p class="hint">Examples:</p>
+      <ul class="examples">
+        <li><a href="#" data-url="https://www.gutenberg.org/ebooks/search.opds/">Project Gutenberg</a></li>
+        <li><a href="#" data-url="https://manybooks.net/opds/">ManyBooks</a></li>
+        <li><a href="#" data-url="https://mayberry.pub">Mayberry</a></li>
+      </ul>
+    </div>
+  </main>
+</div>
+</body>
+</html>
