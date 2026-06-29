@@ -363,15 +363,6 @@ const OPDS = (() => {
       });
     });
 
-    $$('.entry-card .entry-title-link').forEach(link => {
-      link.addEventListener('click', e => {
-        e.preventDefault();
-        const idx = parseInt(link.dataset.idx, 10);
-        const entry = feed.entries[idx];
-        if (entry) showDetail(entry);
-      });
-    });
-
     $$('.pagination-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const page = parseInt(btn.dataset.page, 10);
@@ -421,13 +412,11 @@ const OPDS = (() => {
       return `<a href="${escapeHtml(proxyWrap(d.href))}" class="download" target="_blank" download>${formatType(d.type)}</a>`;
     }).join('') || '';
 
-    const detailAction = `<a href="#" class="entry-title-link" data-idx="${idx}">Details</a>`;
-
     return `
       <div class="entry-card">
         <div class="entry-cover">${coverImg}</div>
         <div class="entry-body">
-          <h3><a href="#" class="entry-title-link" data-idx="${idx}">${escapeHtml(entry.title)}</a></h3>
+          <h3>${escapeHtml(entry.title)}</h3>
           ${authors ? `<div class="entry-authors">${authors}</div>` : ''}
           ${entry.summary ? `<div class="entry-summary">${escapeHtml(entry.summary)}</div>` : ''}
           <div class="entry-meta">
@@ -437,7 +426,6 @@ const OPDS = (() => {
           </div>
         </div>
         <div class="entry-actions">
-          ${detailAction}
           ${formats}
         </div>
       </div>`;
@@ -461,85 +449,6 @@ const OPDS = (() => {
     html += `<button class="pagination-btn secondary page-last" data-page="${totalPages - 1}" ${currentPage >= totalPages - 1 ? 'disabled' : ''}>Last &#187;</button>`;
     html += `</div>`;
     return html;
-  }
-
-  function showDetail(entry) {
-    const content = $('#content');
-
-    const formatLabel = (type) => {
-      const map = {
-        'application/epub+zip': 'EPUB',
-        'application/pdf': 'PDF',
-        'application/x-mobipocket-ebook': 'MOBI',
-        'application/x-kindle': 'AZW3',
-        'application/x-cbr': 'CBZ/CBR',
-        'text/html': 'HTML',
-        'text/plain': 'TXT',
-      };
-      return map[type] || type;
-    };
-
-    const coverImg = entry.cover
-      ? `<img src="${escapeHtml(entry.cover)}" alt="${escapeHtml(entry.title)}" onerror="this.onerror=null;this.parentElement.innerHTML='<div class=\\'no-cover\\'>&#128212;</div>'">`
-      : `<div class="no-cover">&#128212;</div>`;
-
-    const authors = entry.authors.length > 0
-      ? `<p class="authors">by ${escapeHtml(entry.authors.join(', '))}</p>`
-      : '';
-
-    const summary = entry.summary
-      ? `<div class="summary">${escapeHtml(entry.summary)}</div>`
-      : '';
-
-    const meta = [];
-    if (entry.published) meta.push(['Published', entry.published.slice(0, 10)]);
-    if (entry.updated) meta.push(['Updated', entry.updated.slice(0, 10)]);
-    if (entry.language) meta.push(['Language', entry.language]);
-    if (entry.id) meta.push(['ID', entry.id.slice(0, 60)]);
-    if (entry.categories.length > 0) meta.push(['Categories', entry.categories.join(', ')]);
-
-    const metaHtml = meta.length > 0
-      ? `<div class="detail-meta">${meta.map(([l, v]) => `<span class="label">${l}</span><span class="value">${escapeHtml(v)}</span>`).join('')}</div>`
-      : '';
-
-    const downloads = entry.downloads.length > 0
-      ? `<div class="detail-links">${entry.downloads.map(d => `<a href="${escapeHtml(proxyWrap(d.href))}" target="_blank" download>${escapeHtml(formatLabel(d.type))}</a>`).join('')}</div>`
-      : '';
-
-    const alternate = entry.links.alternate
-      ? `<div class="detail-alternate"><a href="${escapeHtml(entry.links.alternate)}" target="_blank" class="secondary">View on publisher site &#8599;</a></div>`
-      : '';
-
-    state.history.push({ title: entry.title, url: state.currentUrl });
-
-    if (entry.id) {
-      updateUrlParams({ book: entry.id }, true);
-    }
-
-    content.innerHTML = `
-      <div id="detail-view">
-        <div class="detail-back">
-          <a href="#" id="detail-back-link">&#8592; Back to catalog</a>
-        </div>
-        <div class="detail-content">
-          <div class="detail-cover">${coverImg}</div>
-          <div class="detail-info">
-            <h2>${escapeHtml(entry.title)}</h2>
-            ${authors}
-            ${summary}
-            ${metaHtml}
-            ${downloads}
-            ${alternate}
-          </div>
-        </div>
-      </div>`;
-
-    $('#detail-back-link').addEventListener('click', e => {
-      e.preventDefault();
-      state.history.pop();
-      updateUrlParams({ book: '' }, true);
-      reloadCurrentFeed();
-    });
   }
 
   async function loadPage(page) {
@@ -612,12 +521,6 @@ const OPDS = (() => {
       }
     } finally {
       showLoading(false);
-    }
-  }
-
-  function reloadCurrentFeed() {
-    if (state.currentUrl) {
-      loadFeed(state.currentUrl, true);
     }
   }
 
@@ -710,12 +613,7 @@ const OPDS = (() => {
           state.history = e.state.history || [];
           state.currentUrl = e.state.currentUrl || '';
         }
-        loadFeed(params.url, true).then(() => {
-          if (params.book && state.entries.length > 0) {
-            const entry = state.entries.find(e => e.id === params.book);
-            if (entry) showDetail(entry);
-          }
-        });
+        loadFeed(params.url, true);
       } else {
         state.history = [];
         state.currentUrl = '';
@@ -736,12 +634,7 @@ const OPDS = (() => {
 
     if (params.url) {
       state.rootUrl = params.feed || params.url;
-      loadFeed(params.url, true).then(() => {
-        if (params.book && state.entries.length > 0) {
-          const entry = state.entries.find(e => e.id === params.book);
-          if (entry) showDetail(entry);
-        }
-      });
+      loadFeed(params.url, true);
     } else if (params.search && params.feed) {
       state.rootUrl = params.feed;
       state.currentUrl = params.feed;
