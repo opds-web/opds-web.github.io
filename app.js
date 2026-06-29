@@ -410,7 +410,7 @@ const OPDS = (() => {
       : '';
 
     const formats = entry.downloads.slice(0, 2).map(d => {
-      return `<a href="${escapeHtml(proxyWrap(d.href))}" class="download" target="_blank" download>${formatType(d.type)}</a>`;
+      return `<a href="${escapeHtml(d.href)}" class="download" target="_blank" download>${formatType(d.type)}</a>`;
     }).join('') || '';
 
     return `
