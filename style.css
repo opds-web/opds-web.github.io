@@ -237,16 +237,15 @@ button, .btn, .secondary {
   padding: 24px 20px;
   cursor: pointer;
   text-align: center;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .nav-card:hover {
   background: var(--surface2);
   border-color: var(--primary);
-}
-
-.nav-card .nav-icon {
-  font-size: 2rem;
-  margin-bottom: 8px;
 }
 
 .nav-card h3 {

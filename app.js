@@ -322,9 +322,10 @@ const OPDS = (() => {
       feed.navigation.forEach(nav => {
         html += `
           <div class="nav-card" data-url="${escapeHtml(nav.href)}">
-            <div class="nav-icon">&#128193;</div>
-            <h3>${escapeHtml(nav.title)}</h3>
-            ${nav.summary ? `<p>${escapeHtml(nav.summary)}</p>` : ''}
+            <div>
+              <h3>${escapeHtml(nav.title)}</h3>
+              ${nav.summary ? `<p>${escapeHtml(nav.summary)}</p>` : ''}
+            </div>
           </div>`;
       });
       html += `</div>`;
