@@ -325,8 +325,7 @@ button, .btn, .secondary {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: auto;
-  padding-top: 8px;
+  padding: 8px 0;
   font-size: 0.75rem;
 }
 
